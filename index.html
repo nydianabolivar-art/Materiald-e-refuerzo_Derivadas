@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clase Interactiva: La Derivada — UCompensar</title>
+
+<!-- MathJax para renderizado matemático profesional -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<!-- Tipografías editoriales: serif académica + sans geométrica + monoespaciada para fórmulas -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --azul: #1a3a52;
+  --azul-claro: #2c5a7d;
+  --azul-suave: #e8eef4;
+  --naranja: #d97706;
+  --naranja-claro: #fef3e2;
+  --crema: #faf6f0;
+  --papel: #f5efe6;
+  --tinta: #1a1a1a;
+  --tinta-suave: #4a4a4a;
+  --linea: #d4c9b8;
+  --verde-ok: #15803d;
+  --verde-suave: #dcfce7;
+  --rojo-err: #b91c1c;
+  --rojo-suave: #fee2e2;
+  --amarillo-tip: #fef9c3;
+  --amarillo-borde: #ca8a04;
+  --sombra: 0 2px 8px rgba(26, 58, 82, 0.08);
+  --sombra-fuerte: 0 8px 24px rgba(26, 58, 82, 0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--crema);
+  color: var(--tinta);
+  line-height: 1.6;
+  font-size: 16px;
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(217, 119, 6, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 90% 100%, rgba(26, 58, 82, 0.05) 0%, transparent 50%);
+  min-height: 100vh;
+}
+
+/* ======== HEADER ======== */
+.header {
+  background: linear-gradient(135deg, var(--azul) 0%, var(--azul-claro) 100%);
+  color: var(--crema);
+  padding: 2.5rem 2rem 3rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 4px solid var(--naranja);
+}
+
+.header::before {
+  content: '∫ d/dx ∂ ∇ Δ ε δ lim';
+  position: absolute;
+  top: 50%;
+  right: -50px;
+  font-family: 'Fraunces', serif;
+  font-size: 8rem;
+  font-style: italic;
+  opacity: 0.06;
+  white-space: nowrap;
+  transform: translateY(-50%) rotate(-12deg);
+  letter-spacing: 0.2em;
+  pointer-events: none;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--naranja);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.eyebrow::before, .eyebrow::after {
+  content: '';
+  height: 1px;
+  width: 40px;
+  background: var(--naranja);
+}
+
+.eyebrow::after { flex: 1; max-width: 100px; }
+
+.titulo {
+  font-family: 'Fraunces', serif;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.titulo em {
+  font-style: italic;
+  color: var(--naranja);
+  font-weight: 400;
+}
+
+.subtitulo {
+  font-size: 1.125rem;
+  font-weight: 400;
+  max-width: 720px;
+  opacity: 0.92;
+  line-height: 1.5;
+}
+
+.meta-curso {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.meta-curso span {
+  background: rgba(255,255,255,0.1);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* ======== NAVEGACIÓN POR PESTAÑAS ======== */
+.tabs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-top: -1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  background: var(--papel);
+  border-radius: 12px 12px 0 0;
+  padding: 0.5rem 0.5rem 0;
+  box-shadow: var(--sombra-fuerte);
+  border: 1px solid var(--linea);
+  border-bottom: none;
+}
+
+.tab {
+  padding: 0.9rem 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--tinta-suave);
+  border-radius: 8px 8px 0 0;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--azul);
+  background: rgba(26, 58, 82, 0.05);
+}
+
+.tab.activa {
+  background: var(--crema);
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.tab.activa::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--naranja);
+}
+
+.tab-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.95rem;
+  opacity: 0.6;
+}
+
+/* ======== CONTENIDO PRINCIPAL ======== */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+.tab-content {
+  background: var(--crema);
+  border: 1px solid var(--linea);
+  border-radius: 0 0 12px 12px;
+  padding: 2.5rem;
+  box-shadow: var(--sombra);
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.tab-content.activa { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== TIPOGRAFÍA DE CONTENIDO ======== */
+h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 2.25rem;
+  color: var(--azul);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+h2 + .seccion-intro {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--tinta-suave);
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--linea);
+}
+
+h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--azul);
+  margin: 2rem 0 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+h3 .num-seccion {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--naranja);
+  font-size: 1.2rem;
+}
+
+h4 {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--azul);
+  margin: 1.25rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+}
+
+p { margin-bottom: 1rem; color: var(--tinta-suave); }
+
+p strong { color: var(--tinta); font-weight: 700; }
+
+/* ======== BLOQUES MATEMÁTICOS ======== */
+.formula-destacada {
+  background: var(--papel);
+  border-left: 4px solid var(--naranja);
+  padding: 1.5rem 2rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 1.1rem;
+  position: relative;
+  overflow-x: auto;
+}
+
+.formula-destacada::before {
+  content: 'fórmula clave';
+  position: absolute;
+  top: -10px;
+  left: 1.5rem;
+  background: var(--naranja);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+/* ======== TARJETAS DE REGLAS ======== */
+.reglas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.regla-card {
+  background: var(--crema);
+  border: 1.5px solid var(--linea);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.regla-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--azul);
+  transition: width 0.3s ease;
+}
+
+.regla-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra-fuerte);
+  border-color: var(--azul);
+}
+
+.regla-card:hover::before { width: 8px; background: var(--naranja); }
+
+.regla-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--naranja);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.regla-titulo {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--azul);
+  margin-bottom: 0.75rem;
+}
+
+.regla-formula {
+  background: var(--azul-suave);
+  padding: 0.85rem;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  text-align: center;
+  font-size: 1rem;
+  overflow-x: auto;
+}
+
+.regla-ejemplo {
+  font-size: 0.875rem;
+  color: var(--tinta-suave);
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--linea);
+}
+
+.regla-ejemplo strong { color: var(--azul); display: block; margin-bottom: 0.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ======== EJEMPLOS RESUELTOS ======== */
+.ejemplo-resuelto {
+  background: white;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.ejemplo-header {
+  background: var(--azul);
+  color: white;
+  padding: 1rem 1.5rem;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ejemplo-header .nivel {
+  font-size: 0.7rem;
+  background: var(--naranja);
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.ejemplo-body { padding: 1.5rem; }
+
+.paso {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--papel);
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.paso-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--naranja);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: 'Fraunces', serif;
+  font-size: 0.95rem;
+}
+
+.paso-contenido { flex: 1; overflow-x: auto; }
+
+.paso-contenido p { margin-bottom: 0.5rem; font-size: 0.95rem; }
+
+/* ======== CONSEJOS / TIPS ======== */
+.tip {
+  background: var(--amarillo-tip);
+  border-left: 4px solid var(--amarillo-borde);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  position: relative;
+}
+
+.tip-titulo {
+  font-weight: 700;
+  color: #854d0e;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tip-titulo::before { content: '◆'; color: var(--amarillo-borde); }
+
+.tip p { color: #713f12; margin: 0; }
+
+.alerta {
+  background: var(--rojo-suave);
+  border-left: 4px solid var(--rojo-err);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+}
+
+.alerta-titulo {
+  font-weight: 700;
+  color: var(--rojo-err);
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.alerta p { color: #7f1d1d; margin: 0; }
+
+/* ======== EJERCICIO INTERACTIVO ======== */
+.ejercicio {
+  background: white;
+  border: 2px solid var(--linea);
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin: 1.5rem 0;
+  transition: border-color 0.3s ease;
+}
+
+.ejercicio.respondido-ok { border-color: var(--verde-ok); }
+.ejercicio.respondido-err { border-color: var(--rojo-err); }
+
+.ejercicio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--linea);
+}
+
+.ejercicio-numero {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: var(--naranja);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.ejercicio-dificultad {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dif-basico { background: var(--verde-suave); color: var(--verde-ok); }
+.dif-intermedio { background: var(--naranja-claro); color: var(--naranja); }
+.dif-avanzado { background: var(--rojo-suave); color: var(--rojo-err); }
+
+.ejercicio-enunciado {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: var(--tinta);
+}
+
+.ejercicio-enunciado strong { color: var(--azul); }
+
+.opciones {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--papel);
+  border: 1.5px solid var(--linea);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.opcion:hover:not(.deshabilitada) {
+  border-color: var(--azul);
+  background: var(--azul-suave);
+  transform: translateX(4px);
+}
+
+.opcion-letra {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--linea);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: 'Fraunces', serif;
+  background: white;
+  font-size: 0.85rem;
+}
+
+.opcion.correcta {
+  background: var(--verde-suave);
+  border-color: var(--verde-ok);
+  color: #14532d;
+}
+.opcion.correcta .opcion-letra { background: var(--verde-ok); color: white; border-color: var(--verde-ok); }
+
+.opcion.incorrecta {
+  background: var(--rojo-suave);
+  border-color: var(--rojo-err);
+  color: #7f1d1d;
+}
+.opcion.incorrecta .opcion-letra { background: var(--rojo-err); color: white; border-color: var(--rojo-err); }
+
+.opcion.deshabilitada { cursor: default; }
+
+.opcion-contenido { flex: 1; overflow-x: auto; }
+
+.feedback {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback.mostrar { display: block; }
+
+.feedback-ok {
+  background: var(--verde-suave);
+  border-left: 4px solid var(--verde-ok);
+  color: #14532d;
+}
+
+.feedback-err {
+  background: var(--rojo-suave);
+  border-left: 4px solid var(--rojo-err);
+  color: #7f1d1d;
+}
+
+.feedback-titulo {
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ======== PROGRESO PRÁCTICA ======== */
+.progreso-container {
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.progreso-info {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.progreso-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progreso-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: var(--azul);
+  line-height: 1;
+}
+
+.progreso-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tinta-suave);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.barra-progreso {
+  flex: 1;
+  min-width: 200px;
+  height: 8px;
+  background: var(--linea);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra-relleno {
+  height: 100%;
+  background: linear-gradient(90deg, var(--naranja), var(--azul));
+  width: 0%;
+  transition: width 0.5s ease;
+  border-radius: 999px;
+}
+
+/* ======== BOTONES ======== */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-primario {
+  background: var(--naranja);
+  color: white;
+}
+
+.btn-primario:hover {
+  background: #b8620a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.btn-secundario {
+  background: var(--azul);
+  color: white;
+}
+
+.btn-secundario:hover {
+  background: var(--azul-claro);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--azul);
+  border: 1.5px solid var(--azul);
+}
+
+.btn-ghost:hover {
+  background: var(--azul);
+  color: white;
+}
+
+/* ======== APLICACIONES ======== */
+.aplicacion-card {
+  background: white;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  box-shadow: var(--sombra);
+  transition: transform 0.2s ease;
+}
+
+.aplicacion-card:hover { transform: translateX(4px); }
+
+.aplicacion-icono {
+  width: 56px;
+  height: 56px;
+  background: var(--azul-suave);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.75rem;
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.aplicacion-card:nth-child(odd) .aplicacion-icono {
+  background: var(--naranja-claro);
+  color: var(--naranja);
+}
+
+.aplicacion-titulo {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--azul);
+  margin-bottom: 0.5rem;
+}
+
+.aplicacion-carrera {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: var(--azul);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* ======== CERTIFICADO ======== */
+.certificado-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.certificado-overlay.activo { display: flex; }
+
+.certificado {
+  background: var(--crema);
+  border: 8px double var(--azul);
+  padding: 3rem;
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.certificado::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 12px; right: 12px; bottom: 12px;
+  border: 2px solid var(--naranja);
+  pointer-events: none;
+}
+
+.cert-eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--naranja);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.cert-titulo {
+  font-family: 'Fraunces', serif;
+  font-weight: 800;
+  font-size: 2.5rem;
+  color: var(--azul);
+  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.cert-sub {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--tinta-suave);
+  margin-bottom: 1.5rem;
+}
+
+.cert-otorga {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+  margin-bottom: 0.5rem;
+}
+
+.cert-nombre {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--azul);
+  border-bottom: 2px solid var(--linea);
+  padding-bottom: 0.5rem;
+  margin: 0 auto 1.5rem;
+  max-width: 400px;
+}
+
+.cert-texto { font-size: 0.95rem; color: var(--tinta-suave); margin-bottom: 1rem; }
+
+.cert-puntaje {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: var(--naranja);
+  margin: 1rem 0;
+}
+
+.cert-firma {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--linea);
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+.cert-firma strong { color: var(--azul); }
+
+.cert-acciones { margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+.cert-input {
+  padding: 0.6rem 1rem;
+  border: 1.5px solid var(--linea);
+  border-radius: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto 1rem;
+  display: block;
+  text-align: center;
+}
+
+/* ======== FOOTER / CRÉDITOS ======== */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-top: 2px solid var(--linea);
+  margin-top: 3rem;
+  background: var(--papel);
+}
+
+.footer-marca {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--tinta-suave);
+  margin-bottom: 0.25rem;
+}
+
+.footer-marca strong {
+  font-style: normal;
+  color: var(--azul);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.footer-institucion {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+  letter-spacing: 0.05em;
+}
+
+.footer-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--naranja);
+  margin: 1rem auto;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+  .header { padding: 2rem 1.25rem 2.5rem; }
+  .tabs-container, .main { padding: 0 1rem 2rem; }
+  .tab-content { padding: 1.5rem; }
+  .tab { padding: 0.7rem 0.9rem; font-size: 0.8rem; }
+  .titulo { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  .reglas-grid { grid-template-columns: 1fr; }
+  .aplicacion-card { grid-template-columns: 1fr; }
+  .certificado { padding: 2rem 1.5rem; }
+  .cert-titulo { font-size: 1.75rem; }
+}
+
+/* ======== TABLA DE DERIVADAS ======== */
+.tabla-derivadas {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  font-size: 0.95rem;
+}
+
+.tabla-derivadas thead {
+  background: var(--azul);
+  color: white;
+}
+
+.tabla-derivadas th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tabla-derivadas td {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--linea);
+}
+
+.tabla-derivadas tbody tr:nth-child(even) { background: var(--papel); }
+.tabla-derivadas tbody tr:hover { background: var(--azul-suave); }
+
+/* SVG gráfica */
+.grafica-svg {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin: 1rem auto;
+  display: block;
+  background: white;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .dos-columnas { grid-template-columns: 1fr; }
+}
+
+/* Notación matemática inline */
+.math-inline {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--papel);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+</style>
+</head>
+<body>
+
+<!-- ============== HEADER ============== -->
+<header class="header">
+  <div class="header-content">
+    <div class="eyebrow">Cálculo Diferencial · Clase Interactiva</div>
+    <h1 class="titulo">La Derivada<br><em>razón de cambio instantánea</em></h1>
+    <p class="subtitulo">Una experiencia de aprendizaje completa para entender, calcular y aplicar derivadas con rigor matemático y retroalimentación inmediata.</p>
+    <div class="meta-curso">
+      <span>📐 Cálculo Diferencial</span>
+      <span>⏱ Duración: 90–120 min</span>
+      <span>🎯 7 secciones · 25+ ejercicios</span>
+      <span>🏛 UCompensar · Ciencias Básicas</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============== PESTAÑAS ============== -->
+<div class="tabs-container">
+  <nav class="tabs" role="tablist">
+    <button class="tab activa" data-tab="intro"><span class="tab-num">i.</span> Introducción</button>
+    <button class="tab" data-tab="definicion"><span class="tab-num">ii.</span> Definición formal</button>
+    <button class="tab" data-tab="reglas"><span class="tab-num">iii.</span> Reglas de derivación</button>
+    <button class="tab" data-tab="ejemplos"><span class="tab-num">iv.</span> Ejemplos resueltos</button>
+    <button class="tab" data-tab="practica"><span class="tab-num">v.</span> Práctica</button>
+    <button class="tab" data-tab="aplicaciones"><span class="tab-num">vi.</span> Aplicaciones</button>
+    <button class="tab" data-tab="quiz"><span class="tab-num">vii.</span> Autoevaluación</button>
+  </nav>
+</div>
+
+<!-- ============== CONTENIDO ============== -->
+<main class="main">
+
+<!-- ====== TAB 1: INTRODUCCIÓN ====== -->
+<section class="tab-content activa" id="intro">
+  <h2>La derivada como razón de cambio</h2>
+  <p class="seccion-intro">Antes de calcular, conviene entender qué medimos cuando derivamos. La derivada no es una manipulación simbólica: es la herramienta que cuantifica cómo varía una magnitud cuando otra cambia.</p>
+
+  <h3><span class="num-seccion">§ 1.1</span> La idea fundamental</h3>
+  <p>Imagine que un automóvil recorre una carretera y registra su posición \(s(t)\) en función del tiempo. Si quisiéramos conocer la <strong>velocidad promedio</strong> entre dos instantes \(t_1\) y \(t_2\), calcularíamos:</p>
+
+  <div class="formula-destacada">
+    \[ v_{\text{prom}} = \dfrac{s(t_2) - s(t_1)}{t_2 - t_1} = \dfrac{\Delta s}{\Delta t} \]
+  </div>
+
+  <p>Pero, ¿qué pasa si queremos la <strong>velocidad instantánea</strong> en un instante específico \(t_0\)? La respuesta es geométricamente elegante: hacemos que \(\Delta t\) sea cada vez más pequeño hasta que tienda a cero. Ese límite es la derivada.</p>
+
+  <h3><span class="num-seccion">§ 1.2</span> Interpretación geométrica</h3>
+  <div class="dos-columnas">
+    <div>
+      <p>La derivada de una función \(f(x)\) en un punto \(x_0\) es la <strong>pendiente de la recta tangente</strong> a la curva en ese punto.</p>
+      <p>Geométricamente, partimos de una <em>recta secante</em> que une dos puntos de la curva. A medida que el segundo punto se acerca al primero, la secante se transforma progresivamente en la <em>recta tangente</em>.</p>
+      <div class="tip">
+        <div class="tip-titulo">Lectura clave</div>
+        <p>La derivada \(f'(x_0)\) responde a la pregunta: <em>¿qué tan inclinada está la curva exactamente en el punto \(x_0\)?</em></p>
+      </div>
+    </div>
+    <div>
+      <svg class="grafica-svg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cuadrícula -->
+        <defs>
+          <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 30" fill="none" stroke="#e8eef4" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="300" fill="url(#grid)"/>
+        <!-- Ejes -->
+        <line x1="40" y1="270" x2="380" y2="270" stroke="#1a3a52" stroke-width="1.5"/>
+        <line x1="40" y1="20" x2="40" y2="280" stroke="#1a3a52" stroke-width="1.5"/>
+        <text x="385" y="275" font-family="Fraunces" font-style="italic" font-size="14" fill="#1a3a52">x</text>
+        <text x="30" y="18" font-family="Fraunces" font-style="italic" font-size="14" fill="#1a3a52">y</text>
+        <!-- Parábola y = (x-2)² + 1 escalada -->
+        <path d="M 40,80 Q 150,260 220,180 T 380,40" fill="none" stroke="#1a3a52" stroke-width="2.5"/>
+        <!-- Recta tangente -->
+        <line x1="100" y1="240" x2="340" y2="80" stroke="#d97706" stroke-width="2" stroke-dasharray="6,3"/>
+        <!-- Punto de tangencia -->
+        <circle cx="220" cy="160" r="5" fill="#d97706"/>
+        <text x="230" y="155" font-family="Fraunces" font-size="13" fill="#d97706" font-weight="600">P(x₀, f(x₀))</text>
+        <!-- Etiquetas -->
+        <text x="280" y="215" font-family="Fraunces" font-style="italic" font-size="14" fill="#1a3a52">y = f(x)</text>
+        <text x="115" y="230" font-family="Fraunces" font-style="italic" font-size="13" fill="#d97706">recta tangente</text>
+      </svg>
+    </div>
+  </div>
+
+  <h3><span class="num-seccion">§ 1.3</span> ¿Por qué importa?</h3>
+  <p>La derivada es uno de los conceptos más versátiles de la matemática aplicada. Permite responder preguntas como:</p>
+  <div class="reglas-grid">
+    <div class="regla-card">
+      <div class="regla-num">en física</div>
+      <div class="regla-titulo">Velocidad y aceleración</div>
+      <p style="font-size: 0.9rem;">Si \(s(t)\) es posición, entonces \(s'(t)\) es velocidad y \(s''(t)\) es aceleración.</p>
+    </div>
+    <div class="regla-card">
+      <div class="regla-num">en economía</div>
+      <div class="regla-titulo">Costo e ingreso marginal</div>
+      <p style="font-size: 0.9rem;">La derivada del costo \(C(q)\) indica cuánto cuesta producir una unidad adicional.</p>
+    </div>
+    <div class="regla-card">
+      <div class="regla-num">en biología</div>
+      <div class="regla-titulo">Tasa de crecimiento</div>
+      <p style="font-size: 0.9rem;">Permite modelar crecimiento poblacional, propagación de epidemias y dinámica enzimática.</p>
+    </div>
+    <div class="regla-card">
+      <div class="regla-num">en ingeniería</div>
+      <div class="regla-titulo">Optimización de procesos</div>
+      <p style="font-size: 0.9rem;">Encontrar máximos y mínimos para minimizar costos, maximizar eficiencia o estabilizar estructuras.</p>
+    </div>
+  </div>
+
+  <h3><span class="num-seccion">§ 1.4</span> Notaciones equivalentes</h3>
+  <p>A lo largo del curso encontrará varias formas de escribir la misma derivada. Todas son correctas y se usan según el contexto:</p>
+  <table class="tabla-derivadas">
+    <thead><tr><th>Notación</th><th>Forma</th><th>Origen / uso típico</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Lagrange</strong></td><td>\(f'(x)\)</td><td>La más común en cálculo elemental.</td></tr>
+      <tr><td><strong>Leibniz</strong></td><td>\(\dfrac{dy}{dx}\)</td><td>Útil cuando se quiere recordar respecto a qué variable se deriva.</td></tr>
+      <tr><td><strong>Newton</strong></td><td>\(\dot{y}\)</td><td>Frecuente en física, especialmente con derivadas respecto al tiempo.</td></tr>
+      <tr><td><strong>Operador</strong></td><td>\(D_x f\) o \(\dfrac{d}{dx}f(x)\)</td><td>Útil para enfatizar que derivar es una operación aplicada a la función.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====== TAB 2: DEFINICIÓN FORMAL ====== -->
+<section class="tab-content" id="definicion">
+  <h2>Definición formal: el límite del cociente incremental</h2>
+  <p class="seccion-intro">Aquí formalizamos la intuición geométrica con la herramienta del límite. Esta definición es el punto de partida riguroso de todo el cálculo diferencial.</p>
+
+  <h3><span class="num-seccion">§ 2.1</span> Definición</h3>
+  <p>Sea \(f\) una función definida en un intervalo abierto que contiene a \(x\). La <strong>derivada de \(f\) en \(x\)</strong>, denotada \(f'(x)\), se define como:</p>
+
+  <div class="formula-destacada">
+    \[ f'(x) = \lim_{h \to 0} \dfrac{f(x+h) - f(x)}{h} \]
+  </div>
+
+  <p>siempre que dicho límite exista y sea finito. Cuando el límite existe, decimos que \(f\) es <strong>derivable en \(x\)</strong>.</p>
+
+  <h4>Forma equivalente</h4>
+  <div class="formula-destacada">
+    \[ f'(x_0) = \lim_{x \to x_0} \dfrac{f(x) - f(x_0)}{x - x_0} \]
+  </div>
+
+  <div class="tip">
+    <div class="tip-titulo">Importante</div>
+    <p>Ambas formas son equivalentes. La primera (con \(h\)) es más común para cálculos generales; la segunda es útil cuando se busca la derivada en un punto específico \(x_0\).</p>
+  </div>
+
+  <h3><span class="num-seccion">§ 2.2</span> Cálculo de una derivada por definición — paso a paso</h3>
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo guiado · Calcular \(f'(x)\) si \(f(x) = x^2\)</span>
+      <span class="nivel">Fundamental</span>
+    </div>
+    <div class="ejemplo-body">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <div class="paso-contenido">
+          <p><strong>Plantear el cociente incremental.</strong> Sustituimos en la definición:</p>
+          <p>\[ f'(x) = \lim_{h \to 0} \dfrac{(x+h)^2 - x^2}{h} \]</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <div class="paso-contenido">
+          <p><strong>Expandir el binomio.</strong> Aplicamos \((x+h)^2 = x^2 + 2xh + h^2\):</p>
+          <p>\[ f'(x) = \lim_{h \to 0} \dfrac{x^2 + 2xh + h^2 - x^2}{h} \]</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <div class="paso-contenido">
+          <p><strong>Simplificar.</strong> Los términos \(x^2\) se cancelan:</p>
+          <p>\[ f'(x) = \lim_{h \to 0} \dfrac{2xh + h^2}{h} = \lim_{h \to 0} \dfrac{h(2x + h)}{h} \]</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">4</div>
+        <div class="paso-contenido">
+          <p><strong>Cancelar \(h\)</strong> (válido porque \(h \neq 0\) cuando tomamos el límite):</p>
+          <p>\[ f'(x) = \lim_{h \to 0} (2x + h) \]</p>
+        </div>
+      </div>
+      <div class="paso">
+        <div class="paso-num">5</div>
+        <div class="paso-contenido">
+          <p><strong>Evaluar el límite.</strong> Sustituyendo \(h = 0\):</p>
+          <p style="font-size: 1.15rem; color: var(--azul); font-weight: 600;">\[ \boxed{f'(x) = 2x} \]</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-titulo">Estrategia general</div>
+    <p>Para derivar por definición: (1) sustituya en la fórmula del límite, (2) expanda y simplifique el numerador, (3) factorice \(h\) en el numerador, (4) cancele \(h\), (5) evalúe el límite. Si en el paso 4 no aparece \(h\) factorizable, revise sus operaciones.</p>
+  </div>
+
+  <h3><span class="num-seccion">§ 2.3</span> Cuándo una función NO es derivable</h3>
+  <p>No toda función continua es derivable. Una función no es derivable en un punto cuando:</p>
+  <div class="reglas-grid">
+    <div class="regla-card">
+      <div class="regla-num">caso 1</div>
+      <div class="regla-titulo">Discontinuidad</div>
+      <p style="font-size: 0.9rem;">Si \(f\) no es continua en \(x_0\), entonces no es derivable en \(x_0\). <strong>Continuidad es condición necesaria</strong> (pero no suficiente).</p>
+    </div>
+    <div class="regla-card">
+      <div class="regla-num">caso 2</div>
+      <div class="regla-titulo">Punto anguloso</div>
+      <p style="font-size: 0.9rem;">Como \(f(x) = |x|\) en \(x = 0\): la función es continua pero la pendiente cambia bruscamente, y los límites laterales del cociente incremental difieren.</p>
+    </div>
+    <div class="regla-card">
+      <div class="regla-num">caso 3</div>
+      <div class="regla-titulo">Tangente vertical</div>
+      <p style="font-size: 0.9rem;">Como \(f(x) = \sqrt[3]{x}\) en \(x = 0\): la tangente es vertical, su pendiente sería infinita y el límite no es finito.</p>
+    </div>
+  </div>
+
+  <div class="alerta">
+    <div class="alerta-titulo">Error frecuente</div>
+    <p>Confundir continuidad con derivabilidad. Toda función derivable es continua, pero no toda función continua es derivable. El ejemplo clásico es \(f(x) = |x|\): continua en todo \(\mathbb{R}\), pero no derivable en \(x = 0\).</p>
+  </div>
+
+  <h3><span class="num-seccion">§ 2.4</span> Verificación de comprensión</h3>
+
+  <div class="ejercicio" id="ej-def-1">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Ejercicio conceptual 01</span>
+      <span class="ejercicio-dificultad dif-basico">Básico</span>
+    </div>
+    <div class="ejercicio-enunciado">
+      ¿Cuál de los siguientes límites <strong>define</strong> correctamente la derivada \(f'(x)\)?
+    </div>
+    <div class="opciones" data-correcta="b" data-explicacion="Esta es la definición clásica de derivada como límite del cociente incremental. La opción a) tiene el numerador invertido (daría el negativo), la c) hace que h tienda a infinito (no a cero), y la d) divide por h+x en lugar de h.">
+      <div class="opcion" data-id="a">
+        <div class="opcion-letra">A</div>
+        <div class="opcion-contenido">\(\displaystyle \lim_{h \to 0} \dfrac{f(x) - f(x+h)}{h}\)</div>
+      </div>
+      <div class="opcion" data-id="b">
+        <div class="opcion-letra">B</div>
+        <div class="opcion-contenido">\(\displaystyle \lim_{h \to 0} \dfrac{f(x+h) - f(x)}{h}\)</div>
+      </div>
+      <div class="opcion" data-id="c">
+        <div class="opcion-letra">C</div>
+        <div class="opcion-contenido">\(\displaystyle \lim_{h \to \infty} \dfrac{f(x+h) - f(x)}{h}\)</div>
+      </div>
+      <div class="opcion" data-id="d">
+        <div class="opcion-letra">D</div>
+        <div class="opcion-contenido">\(\displaystyle \lim_{h \to 0} \dfrac{f(x+h) - f(x)}{h+x}\)</div>
+      </div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio" id="ej-def-2">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Ejercicio conceptual 02</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">
+      Use la definición para calcular \(f'(x)\) si \(f(x) = 3x + 5\). ¿Cuál es el resultado?
+    </div>
+    <div class="opciones" data-correcta="c" data-explicacion="Aplicando la definición: f'(x) = lim[h→0] [3(x+h)+5 - (3x+5)]/h = lim[h→0] [3h]/h = 3. La derivada de una función lineal f(x) = mx + b es siempre la pendiente m, lo cual es geométricamente coherente: una recta tiene la misma pendiente en todo punto.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(f'(x) = 0\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(f'(x) = 3x\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(f'(x) = 3\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(f'(x) = 5\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+</section>
+
+<!-- ====== TAB 3: REGLAS DE DERIVACIÓN ====== -->
+<section class="tab-content" id="reglas">
+  <h2>Reglas de derivación</h2>
+  <p class="seccion-intro">Aplicar la definición de límite para cada derivada sería extenuante. Las reglas que siguen permiten derivar la mayoría de funciones algebraicamente, sin recurrir al límite cada vez.</p>
+
+  <h3><span class="num-seccion">§ 3.1</span> Reglas básicas</h3>
+  <div class="reglas-grid">
+    <div class="regla-card">
+      <div class="regla-num">regla 01</div>
+      <div class="regla-titulo">Derivada de una constante</div>
+      <div class="regla-formula">\[ \dfrac{d}{dx}(c) = 0 \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        Si \(f(x) = 7\), entonces \(f'(x) = 0\). Una función constante no cambia.
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 02</div>
+      <div class="regla-titulo">Regla de la potencia</div>
+      <div class="regla-formula">\[ \dfrac{d}{dx}(x^n) = n\,x^{n-1} \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        \(f(x) = x^5 \Rightarrow f'(x) = 5x^4\). Funciona también para exponentes negativos y fraccionarios.
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 03</div>
+      <div class="regla-titulo">Múltiplo constante</div>
+      <div class="regla-formula">\[ \dfrac{d}{dx}[c \cdot f(x)] = c \cdot f'(x) \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        Si \(f(x) = 4x^3\), entonces \(f'(x) = 4 \cdot 3x^2 = 12x^2\).
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 04</div>
+      <div class="regla-titulo">Suma y diferencia</div>
+      <div class="regla-formula">\[ [f \pm g]' = f' \pm g' \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        \(f(x) = x^3 + 2x^2 - 7 \Rightarrow f'(x) = 3x^2 + 4x\).
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 05</div>
+      <div class="regla-titulo">Regla del producto</div>
+      <div class="regla-formula">\[ [f \cdot g]' = f' g + f g' \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        Si \(f(x) = x^2 \cdot \sin x\), entonces \(f'(x) = 2x\sin x + x^2 \cos x\).
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 06</div>
+      <div class="regla-titulo">Regla del cociente</div>
+      <div class="regla-formula">\[ \left[\dfrac{f}{g}\right]' = \dfrac{f' g - f g'}{g^2} \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        Si \(f(x) = \dfrac{x}{x^2+1}\), entonces \(f'(x) = \dfrac{(1)(x^2+1) - x(2x)}{(x^2+1)^2} = \dfrac{1-x^2}{(x^2+1)^2}\).
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 07</div>
+      <div class="regla-titulo">Regla de la cadena</div>
+      <div class="regla-formula">\[ [f(g(x))]' = f'(g(x)) \cdot g'(x) \]</div>
+      <div class="regla-ejemplo">
+        <strong>Ejemplo</strong>
+        Si \(f(x) = (3x^2+1)^4\), entonces \(f'(x) = 4(3x^2+1)^3 \cdot 6x = 24x(3x^2+1)^3\).
+      </div>
+    </div>
+
+    <div class="regla-card">
+      <div class="regla-num">regla 08</div>
+      <div class="regla-titulo">Funciones especiales</div>
+      <div class="regla-formula" style="font-size: 0.9rem;">\[ \begin{aligned} (\sin x)' &= \cos x \\ (\cos x)' &= -\sin x \\ (e^x)' &= e^x \\ (\ln x)' &= 1/x \end{aligned} \]</div>
+      <div class="regla-ejemplo">
+        <strong>Memorizar</strong>
+        Estas son fundamentales y se combinan con las anteriores en problemas reales.
+      </div>
+    </div>
+  </div>
+
+  <h3><span class="num-seccion">§ 3.2</span> Tabla de derivadas elementales</h3>
+  <table class="tabla-derivadas">
+    <thead>
+      <tr><th>Función \(f(x)\)</th><th>Derivada \(f'(x)\)</th><th>Observación</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>\(c\) (constante)</td><td>\(0\)</td><td>No cambia con \(x\)</td></tr>
+      <tr><td>\(x\)</td><td>\(1\)</td><td>Caso \(n=1\) de la regla de potencia</td></tr>
+      <tr><td>\(x^n\)</td><td>\(n x^{n-1}\)</td><td>Para \(n \in \mathbb{R}\)</td></tr>
+      <tr><td>\(\sqrt{x} = x^{1/2}\)</td><td>\(\dfrac{1}{2\sqrt{x}}\)</td><td>Aplicar regla de potencia con \(n = 1/2\)</td></tr>
+      <tr><td>\(\dfrac{1}{x} = x^{-1}\)</td><td>\(-\dfrac{1}{x^2}\)</td><td>Aplicar regla de potencia con \(n = -1\)</td></tr>
+      <tr><td>\(e^x\)</td><td>\(e^x\)</td><td>Es su propia derivada</td></tr>
+      <tr><td>\(a^x\)</td><td>\(a^x \ln a\)</td><td>Caso general</td></tr>
+      <tr><td>\(\ln x\)</td><td>\(\dfrac{1}{x}\)</td><td>Para \(x > 0\)</td></tr>
+      <tr><td>\(\log_a x\)</td><td>\(\dfrac{1}{x \ln a}\)</td><td>Cambio de base</td></tr>
+      <tr><td>\(\sin x\)</td><td>\(\cos x\)</td><td>—</td></tr>
+      <tr><td>\(\cos x\)</td><td>\(-\sin x\)</td><td>Cuidado con el signo</td></tr>
+      <tr><td>\(\tan x\)</td><td>\(\sec^2 x\)</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <div class="tip-titulo">Consejo de método</div>
+    <p>Antes de aplicar reglas combinadas, identifique la <strong>estructura externa</strong> de la función: ¿es una suma? ¿un producto? ¿un cociente? ¿una composición? Esa identificación dicta qué regla aplicar primero. Las demás vienen anidadas.</p>
+  </div>
+
+  <h3><span class="num-seccion">§ 3.3</span> Verificación rápida</h3>
+
+  <div class="ejercicio" id="ej-reg-1">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Ejercicio 03</span>
+      <span class="ejercicio-dificultad dif-basico">Básico</span>
+    </div>
+    <div class="ejercicio-enunciado">Calcule la derivada de \(f(x) = 5x^4 - 3x^2 + 7\).</div>
+    <div class="opciones" data-correcta="a" data-explicacion="Aplicamos la regla de potencia término a término: d/dx(5x⁴) = 20x³, d/dx(-3x²) = -6x, d/dx(7) = 0. La suma es 20x³ - 6x. Recuerde que la derivada de una constante es cero.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(f'(x) = 20x^3 - 6x\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(f'(x) = 20x^3 - 6x + 7\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(f'(x) = 5x^3 - 3x\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(f'(x) = 20x^3 - 6x^2\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio" id="ej-reg-2">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Ejercicio 04</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">Derive \(f(x) = x^2 \cdot e^x\) usando la regla del producto.</div>
+    <div class="opciones" data-correcta="b" data-explicacion="Regla del producto: (fg)' = f'g + fg'. Con f = x², g = eˣ, tenemos f' = 2x, g' = eˣ. Entonces f'(x) = 2x·eˣ + x²·eˣ = eˣ(2x + x²) = xeˣ(2 + x).">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(f'(x) = 2x \cdot e^x\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(f'(x) = 2xe^x + x^2 e^x\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(f'(x) = 2x \cdot e^{x-1}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(f'(x) = x^2 e^x - 2x e^x\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio" id="ej-reg-3">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Ejercicio 05</span>
+      <span class="ejercicio-dificultad dif-avanzado">Avanzado</span>
+    </div>
+    <div class="ejercicio-enunciado">Derive \(f(x) = (2x^3 + 1)^5\) usando la regla de la cadena.</div>
+    <div class="opciones" data-correcta="c" data-explicacion="Identificamos la función externa f(u) = u⁵ y la interna g(x) = 2x³+1. Por la regla de la cadena: f'(x) = 5(2x³+1)⁴ · (6x²) = 30x²(2x³+1)⁴. El error frecuente es olvidar multiplicar por la derivada interna g'(x) = 6x².">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(f'(x) = 5(2x^3+1)^4\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(f'(x) = 6x^2(2x^3+1)^5\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(f'(x) = 30x^2(2x^3+1)^4\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(f'(x) = 5(6x^2)^4\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+</section>
+
+<!-- ====== TAB 4: EJEMPLOS RESUELTOS ====== -->
+<section class="tab-content" id="ejemplos">
+  <h2>Ejemplos resueltos paso a paso</h2>
+  <p class="seccion-intro">Una colección de ejemplos de complejidad creciente. Lea cada paso, intente predecir el siguiente antes de revelarlo, y note las decisiones estratégicas que justifican cada manipulación.</p>
+
+  <!-- Ejemplo 1 -->
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo 1 · Polinomio combinado</span>
+      <span class="nivel">Básico</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Derive</strong> \(f(x) = 3x^4 - 2x^3 + 5x - 9\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Identificamos: es una suma/diferencia de monomios. Aplicamos la regla de la suma y la potencia término a término.</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>\(\dfrac{d}{dx}(3x^4) = 3 \cdot 4x^3 = 12x^3\)</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>\(\dfrac{d}{dx}(-2x^3) = -2 \cdot 3x^2 = -6x^2\)</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p>\(\dfrac{d}{dx}(5x) = 5\) y \(\dfrac{d}{dx}(-9) = 0\)</p></div></div>
+      <div class="paso"><div class="paso-num">5</div><div class="paso-contenido"><p style="font-size: 1.1rem; color: var(--azul); font-weight: 600;">\[\boxed{f'(x) = 12x^3 - 6x^2 + 5}\]</p></div></div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 2 -->
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo 2 · Producto de funciones</span>
+      <span class="nivel">Intermedio</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Derive</strong> \(f(x) = (x^2 + 3) \cdot \cos x\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Estructura: producto de dos funciones. Aplicamos \([fg]' = f'g + fg'\). Definimos \(f = x^2 + 3\) y \(g = \cos x\).</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>Calculamos las derivadas individuales: \(f' = 2x\) y \(g' = -\sin x\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>Aplicamos la fórmula:</p><p>\[ f'(x) = (2x)(\cos x) + (x^2 + 3)(-\sin x) \]</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p style="font-size: 1.1rem; color: var(--azul); font-weight: 600;">\[\boxed{f'(x) = 2x\cos x - (x^2 + 3)\sin x}\]</p></div></div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 3 -->
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo 3 · Cociente</span>
+      <span class="nivel">Intermedio</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Derive</strong> \(f(x) = \dfrac{2x + 1}{x^2 - 3}\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Estructura: cociente. Aplicamos \(\left[\dfrac{u}{v}\right]' = \dfrac{u'v - uv'}{v^2}\) con \(u = 2x+1\) y \(v = x^2-3\).</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>Derivadas individuales: \(u' = 2\), \(v' = 2x\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>Sustituyendo:</p><p>\[ f'(x) = \dfrac{(2)(x^2 - 3) - (2x+1)(2x)}{(x^2 - 3)^2} \]</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p>Expandimos el numerador:</p><p>\[ = \dfrac{2x^2 - 6 - 4x^2 - 2x}{(x^2 - 3)^2} = \dfrac{-2x^2 - 2x - 6}{(x^2 - 3)^2} \]</p></div></div>
+      <div class="paso"><div class="paso-num">5</div><div class="paso-contenido"><p style="font-size: 1.1rem; color: var(--azul); font-weight: 600;">\[\boxed{f'(x) = \dfrac{-2(x^2 + x + 3)}{(x^2 - 3)^2}}\]</p></div></div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 4 -->
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo 4 · Regla de la cadena</span>
+      <span class="nivel">Intermedio-Avanzado</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Derive</strong> \(f(x) = \sin(3x^2 + 1)\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Estructura: composición. Identificamos la función externa \(F(u) = \sin(u)\) y la interna \(u = g(x) = 3x^2 + 1\).</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>Calculamos las derivadas: \(F'(u) = \cos u\) y \(g'(x) = 6x\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>Aplicamos la cadena \([F(g)]' = F'(g) \cdot g'\):</p><p>\[ f'(x) = \cos(3x^2 + 1) \cdot 6x \]</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p style="font-size: 1.1rem; color: var(--azul); font-weight: 600;">\[\boxed{f'(x) = 6x \cos(3x^2 + 1)}\]</p></div></div>
+    </div>
+  </div>
+
+  <!-- Ejemplo 5 -->
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo 5 · Combinación de reglas</span>
+      <span class="nivel">Avanzado</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Derive</strong> \(f(x) = x^2 \cdot \ln(x^3 + 2)\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Estructura externa: producto. Pero el segundo factor es una composición, así que usaremos cadena <em>dentro</em> del producto.</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>Sea \(u = x^2\) y \(v = \ln(x^3 + 2)\). Entonces \(u' = 2x\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>Para \(v'\) aplicamos la cadena: con \(w = x^3+2\), \(v = \ln w\), tenemos \(v' = \dfrac{1}{w} \cdot w' = \dfrac{3x^2}{x^3+2}\).</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p>Aplicamos producto:</p><p>\[ f'(x) = (2x)\ln(x^3+2) + x^2 \cdot \dfrac{3x^2}{x^3+2} \]</p></div></div>
+      <div class="paso"><div class="paso-num">5</div><div class="paso-contenido"><p style="font-size: 1.05rem; color: var(--azul); font-weight: 600;">\[\boxed{f'(x) = 2x\ln(x^3+2) + \dfrac{3x^4}{x^3+2}}\]</p></div></div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-titulo">Estrategia diagnóstica</div>
+    <p>Antes de derivar, pregúntese: ¿qué <em>operación principal</em> conecta la función completa? Si es una suma, derive término a término. Si es un producto, use la regla del producto. Si es un cociente, use cociente. Si una función está <em>dentro</em> de otra, use cadena. Las reglas se combinan: producto cuyo factor es composición → producto + cadena anidada.</p>
+  </div>
+</section>
+
+<!-- ====== TAB 5: PRÁCTICA INTERACTIVA ====== -->
+<section class="tab-content" id="practica">
+  <h2>Práctica con retroalimentación inmediata</h2>
+  <p class="seccion-intro">Diez ejercicios de dificultad progresiva. Reciba comentarios al instante con cada respuesta. El sistema lleva registro de su avance; intente resolver primero en papel antes de marcar.</p>
+
+  <div class="progreso-container">
+    <div class="progreso-info">
+      <div class="progreso-stat">
+        <span class="progreso-num" id="prac-correctas">0</span>
+        <span class="progreso-label">Correctas</span>
+      </div>
+      <div class="progreso-stat">
+        <span class="progreso-num" id="prac-respondidas">0</span>
+        <span class="progreso-label">de 10</span>
+      </div>
+      <div class="progreso-stat">
+        <span class="progreso-num" id="prac-porcentaje">0%</span>
+        <span class="progreso-label">Acierto</span>
+      </div>
+    </div>
+    <div class="barra-progreso"><div class="barra-relleno" id="barra-practica"></div></div>
+    <button class="btn btn-ghost" onclick="reiniciarPractica()">↻ Reiniciar</button>
+  </div>
+
+  <!-- 10 ejercicios de práctica -->
+  <div class="ejercicio practica" id="p1">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 01</span>
+      <span class="ejercicio-dificultad dif-basico">Básico</span>
+    </div>
+    <div class="ejercicio-enunciado">Si \(f(x) = 7x^3\), entonces \(f'(x) = \) ?</div>
+    <div class="opciones" data-correcta="b" data-explicacion="Aplicamos la regla del múltiplo constante y la potencia: f'(x) = 7·(3x²) = 21x². Mantenga el coeficiente; multiplique por el exponente original; reduzca el exponente en 1.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(7x^2\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(21x^2\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(3x^2\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(21x^3\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p2">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 02</span>
+      <span class="ejercicio-dificultad dif-basico">Básico</span>
+    </div>
+    <div class="ejercicio-enunciado">La derivada de \(f(x) = \sqrt{x}\) es:</div>
+    <div class="opciones" data-correcta="c" data-explicacion="Reescribimos como f(x) = x^(1/2). Por la regla de la potencia: f'(x) = (1/2)·x^(-1/2) = 1/(2√x). El truco: convertir radicales a exponentes fraccionarios facilita aplicar la regla.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(\dfrac{1}{2}\sqrt{x}\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(\dfrac{1}{\sqrt{x}}\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(\dfrac{1}{2\sqrt{x}}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(2\sqrt{x}\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p3">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 03</span>
+      <span class="ejercicio-dificultad dif-basico">Básico</span>
+    </div>
+    <div class="ejercicio-enunciado">Si \(f(x) = 4x^5 - 3x^2 + 2x - 8\), entonces \(f'(x) =\) ?</div>
+    <div class="opciones" data-correcta="a" data-explicacion="Derivamos término a término: (4x⁵)' = 20x⁴; (-3x²)' = -6x; (2x)' = 2; (-8)' = 0. La constante desaparece, y el término lineal pierde la x.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(20x^4 - 6x + 2\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(20x^4 - 6x + 2 - 8\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(4x^4 - 3x + 2\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(20x^4 - 6x^2 + 2\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p4">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 04</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">La derivada de \(f(x) = \dfrac{1}{x^2}\) es:</div>
+    <div class="opciones" data-correcta="d" data-explicacion="Reescribimos: f(x) = x⁻². Aplicando la potencia: f'(x) = -2·x⁻³ = -2/x³. Cuidado con el signo: el exponente negativo se mantiene negativo al multiplicar por la regla.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(\dfrac{2}{x^3}\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(-\dfrac{1}{2x^3}\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(\dfrac{1}{2x}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(-\dfrac{2}{x^3}\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p5">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 05</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">Aplicando la regla del producto, la derivada de \(f(x) = x \cdot \sin x\) es:</div>
+    <div class="opciones" data-correcta="b" data-explicacion="Producto: (fg)' = f'g + fg'. Con f = x, g = sin x: f' = 1, g' = cos x. Resultado: 1·sin x + x·cos x = sin x + x cos x.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(\cos x\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(\sin x + x\cos x\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(x\cos x\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(\cos x - x\sin x\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p6">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 06</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">La derivada de \(f(x) = e^{2x}\) es:</div>
+    <div class="opciones" data-correcta="c" data-explicacion="Cadena: función externa eᵘ con derivada eᵘ; función interna u = 2x con derivada 2. Resultado: e^(2x) · 2 = 2e^(2x). Olvidar la derivada interna es el error más frecuente.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(e^{2x}\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(e^{2}\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(2e^{2x}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(2x e^{2x-1}\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p7">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 07</span>
+      <span class="ejercicio-dificultad dif-intermedio">Intermedio</span>
+    </div>
+    <div class="ejercicio-enunciado">Calcule \(\dfrac{d}{dx}\left[\ln(x^2 + 1)\right]\).</div>
+    <div class="opciones" data-correcta="a" data-explicacion="Cadena con función externa ln(u), cuya derivada es 1/u, y función interna u = x²+1, cuya derivada es 2x. Resultado: 1/(x²+1) · 2x = 2x/(x²+1).">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(\dfrac{2x}{x^2+1}\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(\dfrac{1}{x^2+1}\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(\dfrac{1}{2x}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(\ln(2x)\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p8">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 08</span>
+      <span class="ejercicio-dificultad dif-avanzado">Avanzado</span>
+    </div>
+    <div class="ejercicio-enunciado">Si \(f(x) = \dfrac{x^2}{x+1}\), entonces \(f'(x) = \) ?</div>
+    <div class="opciones" data-correcta="b" data-explicacion="Cociente: (u/v)' = (u'v - uv')/v². Con u = x², v = x+1: u' = 2x, v' = 1. f'(x) = [2x(x+1) - x²(1)]/(x+1)² = (2x² + 2x - x²)/(x+1)² = (x² + 2x)/(x+1)² = x(x+2)/(x+1)².">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(\dfrac{2x}{x+1}\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(\dfrac{x^2 + 2x}{(x+1)^2}\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(\dfrac{2x - 1}{(x+1)^2}\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(\dfrac{x^2}{(x+1)^2}\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p9">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 09</span>
+      <span class="ejercicio-dificultad dif-avanzado">Avanzado</span>
+    </div>
+    <div class="ejercicio-enunciado">La derivada de \(f(x) = \cos(x^2)\) es:</div>
+    <div class="opciones" data-correcta="d" data-explicacion="Cadena: derivada de cos(u) es -sin(u); derivada interna de u = x² es 2x. Resultado: -sin(x²) · 2x = -2x sin(x²). El signo negativo viene de la derivada del coseno; es un error frecuente olvidarlo.">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(-\sin(x^2)\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(2x\cos(x^2)\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(-\sin(2x)\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(-2x\sin(x^2)\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="ejercicio practica" id="p10">
+    <div class="ejercicio-header">
+      <span class="ejercicio-numero">Práctica 10</span>
+      <span class="ejercicio-dificultad dif-avanzado">Avanzado</span>
+    </div>
+    <div class="ejercicio-enunciado">Si \(f(x) = (x^2 + 1)^3 \cdot e^x\), entonces \(f'(x) = \) ?</div>
+    <div class="opciones" data-correcta="c" data-explicacion="Producto + cadena. f = (x²+1)³, g = eˣ. Por cadena: f' = 3(x²+1)²·2x = 6x(x²+1)². g' = eˣ. Producto: f'(x) = 6x(x²+1)²·eˣ + (x²+1)³·eˣ = eˣ(x²+1)²[6x + (x²+1)] = eˣ(x²+1)²(x²+6x+1).">
+      <div class="opcion" data-id="a"><div class="opcion-letra">A</div><div class="opcion-contenido">\(3(x^2+1)^2 \cdot e^x\)</div></div>
+      <div class="opcion" data-id="b"><div class="opcion-letra">B</div><div class="opcion-contenido">\(6x(x^2+1)^2 \cdot e^x\)</div></div>
+      <div class="opcion" data-id="c"><div class="opcion-letra">C</div><div class="opcion-contenido">\(e^x(x^2+1)^2(x^2 + 6x + 1)\)</div></div>
+      <div class="opcion" data-id="d"><div class="opcion-letra">D</div><div class="opcion-contenido">\(e^x \cdot 6x(x^2+1)^3\)</div></div>
+    </div>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="tip" id="cierre-practica" style="display: none;">
+    <div class="tip-titulo">¡Ha completado los 10 ejercicios!</div>
+    <p>Si su puntaje es <strong>≥ 8/10</strong>, está listo para la autoevaluación final. Si es menor, regrese a las pestañas de Reglas o Ejemplos para repasar los conceptos donde tuvo mayor dificultad. La revisión sistemática supera al ejercicio repetido sin reflexión.</p>
+  </div>
+</section>
+
+<!-- ====== TAB 6: APLICACIONES ====== -->
+<section class="tab-content" id="aplicaciones">
+  <h2>Aplicaciones de la derivada</h2>
+  <p class="seccion-intro">La derivada es la herramienta matemática más utilizada en ingeniería, economía, ciencias de datos y diseño. Aquí presentamos contextos representativos del enfoque universidad-empresa de UCompensar.</p>
+
+  <h3><span class="num-seccion">§ 6.1</span> Recta tangente</h3>
+  <p>La ecuación de la recta tangente a la curva \(y = f(x)\) en el punto \(P(x_0, f(x_0))\) es:</p>
+  <div class="formula-destacada">
+    \[ y - f(x_0) = f'(x_0) \cdot (x - x_0) \]
+  </div>
+
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Ejemplo · Ecuación de la tangente</span>
+      <span class="nivel">Aplicado</span>
+    </div>
+    <div class="ejemplo-body">
+      <p>Halle la ecuación de la recta tangente a \(f(x) = x^2 + 1\) en el punto \(x_0 = 2\).</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p>Punto de tangencia: \(f(2) = 4 + 1 = 5\), entonces \(P(2, 5)\).</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p>Pendiente: \(f'(x) = 2x\), por lo tanto \(f'(2) = 4\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p>Ecuación: \(y - 5 = 4(x - 2)\), es decir \(\boxed{y = 4x - 3}\).</p></div></div>
+    </div>
+  </div>
+
+  <h3><span class="num-seccion">§ 6.2</span> Optimización: máximos y mínimos</h3>
+  <p>Los puntos críticos de una función ocurren donde \(f'(x) = 0\) o donde \(f'\) no existe. Para clasificarlos se usa la <strong>segunda derivada</strong>:</p>
+  <ul style="margin: 1rem 0 1rem 1.5rem; color: var(--tinta-suave);">
+    <li>Si \(f''(x_0) > 0\) → mínimo local en \(x_0\).</li>
+    <li>Si \(f''(x_0) < 0\) → máximo local en \(x_0\).</li>
+    <li>Si \(f''(x_0) = 0\) → criterio inconcluyente; recurrir al criterio de la primera derivada.</li>
+  </ul>
+
+  <h3><span class="num-seccion">§ 6.3</span> Aplicaciones por carrera</h3>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">$</div>
+    <div>
+      <span class="aplicacion-carrera">Administración / Economía</span>
+      <h4 class="aplicacion-titulo">Costo marginal e ingreso marginal</h4>
+      <p>Si una empresa tiene función de costo \(C(q) = 0.01q^2 + 50q + 1000\), el <strong>costo marginal</strong> es \(C'(q) = 0.02q + 50\). Para \(q = 100\) unidades, \(C'(100) = 52\): producir la unidad 101 cuesta aproximadamente $52 adicionales. La derivada permite tomar decisiones precisas de producción y precios.</p>
+    </div>
+  </div>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">⚙</div>
+    <div>
+      <span class="aplicacion-carrera">Ingeniería Industrial</span>
+      <h4 class="aplicacion-titulo">Optimización de procesos</h4>
+      <p>Una caja sin tapa se construye doblando una lámina cuadrada de 30 cm cortando cuadrados de lado \(x\) en cada esquina. El volumen es \(V(x) = x(30-2x)^2\). Derivando e igualando a cero, se obtiene \(x = 5\) como dimensión óptima del corte para volumen máximo. Aplicación directa en empaque, manufactura y logística.</p>
+    </div>
+  </div>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">⚡</div>
+    <div>
+      <span class="aplicacion-carrera">Software / Sistemas</span>
+      <h4 class="aplicacion-titulo">Descenso de gradiente</h4>
+      <p>El algoritmo central de entrenamiento de redes neuronales usa la derivada del error respecto a cada parámetro: \(\theta \leftarrow \theta - \eta \nabla L(\theta)\). Sin derivadas no habría aprendizaje automático moderno. Cada iteración del entrenamiento es esencialmente una aplicación de regla de la cadena.</p>
+    </div>
+  </div>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">📊</div>
+    <div>
+      <span class="aplicacion-carrera">Ciencia de Datos</span>
+      <h4 class="aplicacion-titulo">Tasa de cambio en series temporales</h4>
+      <p>Al modelar la evolución de una métrica \(y(t)\) (ventas, usuarios activos, casos detectados), la derivada \(y'(t)\) cuantifica la velocidad de crecimiento o decrecimiento. Inflexiones en \(y''(t)\) anuncian cambios de tendencia antes de que sean visibles en los valores absolutos.</p>
+    </div>
+  </div>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">⚛</div>
+    <div>
+      <span class="aplicacion-carrera">Física / Ingenierías</span>
+      <h4 class="aplicacion-titulo">Velocidad y aceleración</h4>
+      <p>Si \(s(t) = -4.9t^2 + 20t + 1.5\) describe la altura (m) de un proyectil lanzado verticalmente, entonces \(v(t) = s'(t) = -9.8t + 20\) es su velocidad y \(a(t) = s''(t) = -9.8\,\text{m/s}^2\) es la aceleración constante de la gravedad. La derivada conecta directamente las leyes del movimiento.</p>
+    </div>
+  </div>
+
+  <div class="aplicacion-card">
+    <div class="aplicacion-icono">∿</div>
+    <div>
+      <span class="aplicacion-carrera">Multimedia / Diseño</span>
+      <h4 class="aplicacion-titulo">Curvas de Bézier y animación</h4>
+      <p>Las curvas de Bézier que controlan la suavidad de animaciones, fuentes tipográficas y trazados vectoriales se derivan para calcular el vector tangente en cada punto, esencial para alinear elementos a lo largo de un trayecto y producir movimientos naturales en interfaces.</p>
+    </div>
+  </div>
+
+  <h3><span class="num-seccion">§ 6.4</span> Problema aplicado guiado</h3>
+  <div class="ejemplo-resuelto">
+    <div class="ejemplo-header">
+      <span>Optimización · Cerca rectangular</span>
+      <span class="nivel">Aplicado</span>
+    </div>
+    <div class="ejemplo-body">
+      <p><strong>Problema.</strong> Un agricultor desea cercar un terreno rectangular adyacente a un río (no requiere cerca del lado del río) usando 200 metros de malla. ¿Qué dimensiones maximizan el área?</p>
+      <div class="paso"><div class="paso-num">1</div><div class="paso-contenido"><p><strong>Modelado.</strong> Sea \(x\) el lado paralelo al río y \(y\) los lados perpendiculares. Restricción: \(x + 2y = 200\), por lo que \(x = 200 - 2y\).</p></div></div>
+      <div class="paso"><div class="paso-num">2</div><div class="paso-contenido"><p><strong>Función a optimizar.</strong> Área: \(A = x \cdot y = (200 - 2y) \cdot y = 200y - 2y^2\).</p></div></div>
+      <div class="paso"><div class="paso-num">3</div><div class="paso-contenido"><p><strong>Derivar e igualar a cero.</strong> \(A'(y) = 200 - 4y = 0 \Rightarrow y = 50\).</p></div></div>
+      <div class="paso"><div class="paso-num">4</div><div class="paso-contenido"><p><strong>Verificar que es máximo.</strong> \(A''(y) = -4 < 0\) → es un máximo.</p></div></div>
+      <div class="paso"><div class="paso-num">5</div><div class="paso-contenido"><p><strong>Conclusión.</strong> \(y = 50\) m, \(x = 100\) m, \(A_{\max} = 5000\) m². \(\boxed{\text{Dimensiones: } 100 \times 50 \text{ m}}\)</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== TAB 7: AUTOEVALUACIÓN ====== -->
+<section class="tab-content" id="quiz">
+  <h2>Autoevaluación final</h2>
+  <p class="seccion-intro">Diez preguntas que cubren toda la clase. Apruebe con 8 o más respuestas correctas para obtener su certificado. Las respuestas se mezclan y se ofrecen explicaciones detalladas al revisar resultados.</p>
+
+  <div class="progreso-container">
+    <div class="progreso-info">
+      <div class="progreso-stat">
+        <span class="progreso-num" id="quiz-correctas">0</span>
+        <span class="progreso-label">Correctas</span>
+      </div>
+      <div class="progreso-stat">
+        <span class="progreso-num" id="quiz-respondidas">0</span>
+        <span class="progreso-label">de 10</span>
+      </div>
+      <div class="progreso-stat">
+        <span class="progreso-num" id="quiz-porcentaje">0%</span>
+        <span class="progreso-label">Acierto</span>
+      </div>
+    </div>
+    <div class="barra-progreso"><div class="barra-relleno" id="barra-quiz"></div></div>
+  </div>
+
+  <div id="quiz-container">
+    <!-- Las preguntas se generan dinámicamente -->
+  </div>
+
+  <div style="margin-top: 2rem; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <button class="btn btn-primario" id="btn-evaluar" onclick="evaluarQuiz()" style="display:none;">Evaluar y obtener certificado</button>
+    <button class="btn btn-ghost" onclick="reiniciarQuiz()">↻ Reiniciar evaluación</button>
+  </div>
+
+  <div id="resultado-quiz" style="display:none; margin-top: 2rem;"></div>
+</section>
+
+</main>
+
+<!-- ============== FOOTER ============== -->
+<footer class="footer">
+  <div class="footer-marca">creada por <strong>Astrid Bolívar</strong></div>
+  <div class="footer-divider"></div>
+  <div class="footer-institucion">Departamento de Ciencias Básicas · Fundación Universitaria Compensar (UCompensar)</div>
+</footer>
+
+<!-- ============== MODAL CERTIFICADO ============== -->
+<div class="certificado-overlay" id="cert-overlay">
+  <div class="certificado">
+    <div class="cert-eyebrow">Certificado de Aprobación</div>
+    <div class="cert-titulo">Cálculo Diferencial</div>
+    <div class="cert-sub">Módulo: La Derivada — razón de cambio instantánea</div>
+
+    <div id="cert-form-bloque">
+      <input type="text" class="cert-input" id="nombre-est" placeholder="Escriba su nombre completo" />
+      <button class="btn btn-primario" onclick="generarCertificado()">Generar certificado</button>
+    </div>
+
+    <div id="cert-final-bloque" style="display:none;">
+      <div class="cert-otorga">se otorga el presente reconocimiento a</div>
+      <div class="cert-nombre" id="cert-nombre-display">—</div>
+      <div class="cert-texto">por haber completado satisfactoriamente la clase interactiva sobre derivadas, demostrando dominio de la definición formal, las reglas de derivación y sus aplicaciones, con un puntaje de:</div>
+      <div class="cert-puntaje" id="cert-puntaje-display">—</div>
+
+      <div class="cert-firma">
+        <strong>Astrid Bolívar</strong><br>
+        Gestora curricular · Ciencias Básicas<br>
+        Fundación Universitaria Compensar
+      </div>
+
+      <div class="cert-acciones">
+        <button class="btn btn-secundario" onclick="window.print()">Imprimir / Guardar PDF</button>
+        <button class="btn btn-ghost" onclick="cerrarCertificado()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============= NAVEGACIÓN PESTAÑAS ============= */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const id = tab.dataset.tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('activa'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activa'));
+    tab.classList.add('activa');
+    document.getElementById(id).classList.add('activa');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise();
+    }
+  });
+});
+
+/* ============= EJERCICIOS CON RETROALIMENTACIÓN ============= */
+document.querySelectorAll('.ejercicio').forEach(ejercicio => {
+  const opciones = ejercicio.querySelectorAll('.opcion');
+  const opcionesContainer = ejercicio.querySelector('.opciones');
+  const feedback = ejercicio.querySelector('.feedback');
+  const correcta = opcionesContainer.dataset.correcta;
+  const explicacion = opcionesContainer.dataset.explicacion;
+
+  opciones.forEach(opcion => {
+    opcion.addEventListener('click', () => {
+      if (opcion.classList.contains('deshabilitada')) return;
+
+      const seleccion = opcion.dataset.id;
+      const esCorrecta = seleccion === correcta;
+
+      // Marcar todas como deshabilitadas
+      opciones.forEach(op => {
+        op.classList.add('deshabilitada');
+        if (op.dataset.id === correcta) op.classList.add('correcta');
+        else if (op.dataset.id === seleccion) op.classList.add('incorrecta');
+      });
+
+      // Mostrar feedback
+      feedback.classList.add('mostrar');
+      if (esCorrecta) {
+        feedback.classList.add('feedback-ok');
+        feedback.innerHTML = `<div class="feedback-titulo">✓ ¡Excelente!</div><p>${explicacion}</p>`;
+        ejercicio.classList.add('respondido-ok');
+      } else {
+        feedback.classList.add('feedback-err');
+        feedback.innerHTML = `<div class="feedback-titulo">✗ Revisemos</div><p>${explicacion}</p>`;
+        ejercicio.classList.add('respondido-err');
+      }
+
+      // Si es ejercicio de práctica, actualizar contador
+      if (ejercicio.classList.contains('practica')) {
+        actualizarProgresoPractica();
+      }
+
+      // Re-renderizar MathJax en el feedback
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([feedback]);
+      }
+    });
+  });
+});
+
+/* ============= PROGRESO PRÁCTICA ============= */
+function actualizarProgresoPractica() {
+  const todos = document.querySelectorAll('.practica');
+  const respondidos = document.querySelectorAll('.practica.respondido-ok, .practica.respondido-err').length;
+  const correctos = document.querySelectorAll('.practica.respondido-ok').length;
+  const total = todos.length;
+  const porcentaje = respondidos > 0 ? Math.round((correctos / respondidos) * 100) : 0;
+
+  document.getElementById('prac-correctas').textContent = correctos;
+  document.getElementById('prac-respondidas').textContent = respondidos;
+  document.getElementById('prac-porcentaje').textContent = porcentaje + '%';
+  document.getElementById('barra-practica').style.width = (respondidos / total * 100) + '%';
+
+  if (respondidos === total) {
+    document.getElementById('cierre-practica').style.display = 'block';
+  }
+}
+
+function reiniciarPractica() {
+  document.querySelectorAll('.practica').forEach(ej => {
+    ej.classList.remove('respondido-ok', 'respondido-err');
+    ej.querySelectorAll('.opcion').forEach(op => {
+      op.classList.remove('deshabilitada', 'correcta', 'incorrecta');
+    });
+    const fb = ej.querySelector('.feedback');
+    fb.classList.remove('mostrar', 'feedback-ok', 'feedback-err');
+    fb.innerHTML = '';
+  });
+  document.getElementById('cierre-practica').style.display = 'none';
+  actualizarProgresoPractica();
+}
+
+/* ============= QUIZ FINAL ============= */
+const preguntasQuiz = [
+  {
+    enunciado: 'La derivada de \\(f(x) = x^7\\) es:',
+    opciones: ['\\(7x^6\\)', '\\(x^6\\)', '\\(7x^7\\)', '\\(\\frac{x^7}{7}\\)'],
+    correcta: 0,
+    explicacion: 'Por la regla de potencia: bajamos el exponente como coeficiente y reducimos el exponente en 1.'
+  },
+  {
+    enunciado: 'Si \\(f(x) = 4x^3 - 2x + 5\\), entonces \\(f\'(x) =\\)',
+    opciones: ['\\(12x^2 - 2\\)', '\\(12x^2 - 2 + 5\\)', '\\(4x^2 - 2\\)', '\\(12x^3 - 2\\)'],
+    correcta: 0,
+    explicacion: 'Derivamos término a término. La constante 5 desaparece; (-2x)\' = -2; (4x³)\' = 12x².'
+  },
+  {
+    enunciado: 'La derivada de \\(f(x) = e^{3x}\\) es:',
+    opciones: ['\\(e^{3x}\\)', '\\(3e^{3x}\\)', '\\(3xe^{3x-1}\\)', '\\(e^{3}\\)'],
+    correcta: 1,
+    explicacion: 'Cadena: derivada de eᵘ por derivada interna. e^(3x) · 3 = 3e^(3x).'
+  },
+  {
+    enunciado: 'La derivada de \\(f(x) = \\sin(2x)\\) es:',
+    opciones: ['\\(\\cos(2x)\\)', '\\(2\\cos(x)\\)', '\\(2\\cos(2x)\\)', '\\(-2\\cos(2x)\\)'],
+    correcta: 2,
+    explicacion: 'Cadena: cos(2x) · 2 = 2cos(2x). El error frecuente es olvidar la derivada interna.'
+  },
+  {
+    enunciado: 'Aplicando la regla del producto, \\(\\dfrac{d}{dx}[x^2 \\cdot \\ln x] =\\)',
+    opciones: ['\\(2x \\cdot \\frac{1}{x}\\)', '\\(2x\\ln x + x\\)', '\\(2x \\ln x\\)', '\\(\\frac{2x}{\\ln x}\\)'],
+    correcta: 1,
+    explicacion: '(fg)\' = f\'g + fg\'. Con f=x², g=ln x: f\'=2x, g\'=1/x. Resultado: 2x·ln x + x²·(1/x) = 2x ln x + x.'
+  },
+  {
+    enunciado: 'La pendiente de la recta tangente a \\(f(x) = x^2 + 1\\) en \\(x = 3\\) es:',
+    opciones: ['\\(3\\)', '\\(6\\)', '\\(10\\)', '\\(9\\)'],
+    correcta: 1,
+    explicacion: 'f\'(x) = 2x. Evaluando en x = 3: f\'(3) = 6. Esa es la pendiente de la tangente.'
+  },
+  {
+    enunciado: 'Si \\(C(q) = 0.5q^2 + 10q + 100\\) es la función de costo, el costo marginal en \\(q = 20\\) es:',
+    opciones: ['\\(30\\)', '\\(20\\)', '\\(10\\)', '\\(40\\)'],
+    correcta: 0,
+    explicacion: 'Costo marginal = C\'(q) = q + 10. En q=20: C\'(20) = 30. Producir la unidad 21 cuesta aprox. $30 más.'
+  },
+  {
+    enunciado: 'La derivada de \\(f(x) = (x^2 + 1)^4\\) es:',
+    opciones: ['\\(4(x^2+1)^3\\)', '\\(8x(x^2+1)^3\\)', '\\(2x(x^2+1)^4\\)', '\\(4x(x^2+1)^3\\)'],
+    correcta: 1,
+    explicacion: 'Cadena: 4(x²+1)³ · 2x = 8x(x²+1)³. La derivada interna es 2x.'
+  },
+  {
+    enunciado: 'La función \\(f(x) = |x|\\) NO es derivable en:',
+    opciones: ['\\(x = 1\\)', '\\(x = -1\\)', '\\(x = 0\\)', 'todo \\(\\mathbb{R}\\)'],
+    correcta: 2,
+    explicacion: 'En x=0 la función presenta un "punto anguloso": los límites laterales del cociente incremental difieren (-1 por la izquierda, +1 por la derecha).'
+  },
+  {
+    enunciado: 'Si \\(f\'(x_0) > 0\\) y \\(f\'\'(x_0) < 0\\), en \\(x_0\\) la función:',
+    opciones: ['Tiene un máximo', 'Tiene un mínimo', 'Crece pero su pendiente disminuye', 'Es constante'],
+    correcta: 2,
+    explicacion: 'f\'(x₀) > 0 significa que está creciendo; f\'\'(x₀) < 0 indica concavidad hacia abajo, es decir, la pendiente está disminuyendo. Aún no es máximo (eso requiere f\' = 0).'
+  }
+];
+
+function generarQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+
+  // Mezclar preguntas
+  const orden = [...Array(preguntasQuiz.length).keys()].sort(() => Math.random() - 0.5);
+
+  orden.forEach((idx, i) => {
+    const p = preguntasQuiz[idx];
+    const numPregunta = i + 1;
+    // Mezclar opciones manteniendo registro de cuál es correcta
+    const opcionesOrden = [0,1,2,3].sort(() => Math.random() - 0.5);
+    const correctaNueva = opcionesOrden.indexOf(p.correcta);
+
+    const letras = ['A','B','C','D'];
+    const html = `
+      <div class="ejercicio quiz-item" id="quiz-${i}" data-correcta="${correctaNueva}" data-explicacion="${p.explicacion.replace(/"/g, '&quot;')}">
+        <div class="ejercicio-header">
+          <span class="ejercicio-numero">Pregunta ${numPregunta} de 10</span>
+        </div>
+        <div class="ejercicio-enunciado">${p.enunciado}</div>
+        <div class="opciones">
+          ${opcionesOrden.map((opIdx, idx2) => `
+            <div class="opcion quiz-opcion" data-idx="${idx2}">
+              <div class="opcion-letra">${letras[idx2]}</div>
+              <div class="opcion-contenido">${p.opciones[opIdx]}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="feedback"></div>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+  });
+
+  // Asignar listeners a las opciones del quiz
+  document.querySelectorAll('.quiz-item').forEach(item => {
+    const opciones = item.querySelectorAll('.quiz-opcion');
+    opciones.forEach(opcion => {
+      opcion.addEventListener('click', () => {
+        if (item.classList.contains('respondido-ok') || item.classList.contains('respondido-err')) return;
+        const seleccion = parseInt(opcion.dataset.idx);
+        const correcta = parseInt(item.dataset.correcta);
+        const esCorrecta = seleccion === correcta;
+
+        opciones.forEach((op, i) => {
+          op.classList.add('deshabilitada');
+          if (i === correcta) op.classList.add('correcta');
+          else if (i === seleccion) op.classList.add('incorrecta');
+        });
+
+        if (esCorrecta) {
+          item.classList.add('respondido-ok');
+        } else {
+          item.classList.add('respondido-err');
+        }
+
+        actualizarProgresoQuiz();
+      });
+    });
+  });
+
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise([container]);
+  }
+}
+
+function actualizarProgresoQuiz() {
+  const total = document.querySelectorAll('.quiz-item').length;
+  const respondidos = document.querySelectorAll('.quiz-item.respondido-ok, .quiz-item.respondido-err').length;
+  const correctos = document.querySelectorAll('.quiz-item.respondido-ok').length;
+  const porcentaje = respondidos > 0 ? Math.round((correctos / respondidos) * 100) : 0;
+
+  document.getElementById('quiz-correctas').textContent = correctos;
+  document.getElementById('quiz-respondidas').textContent = respondidos;
+  document.getElementById('quiz-porcentaje').textContent = porcentaje + '%';
+  document.getElementById('barra-quiz').style.width = (respondidos / total * 100) + '%';
+
+  if (respondidos === total) {
+    document.getElementById('btn-evaluar').style.display = 'inline-flex';
+  }
+}
+
+function evaluarQuiz() {
+  const correctos = document.querySelectorAll('.quiz-item.respondido-ok').length;
+  const total = 10;
+  const aprobado = correctos >= 8;
+
+  // Mostrar explicaciones
+  document.querySelectorAll('.quiz-item').forEach(item => {
+    const fb = item.querySelector('.feedback');
+    const exp = item.dataset.explicacion;
+    const ok = item.classList.contains('respondido-ok');
+    fb.classList.add('mostrar', ok ? 'feedback-ok' : 'feedback-err');
+    fb.innerHTML = `<div class="feedback-titulo">${ok ? '✓ Correcta' : '✗ Revisión'}</div><p>${exp}</p>`;
+  });
+
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise();
+  }
+
+  const resultadoDiv = document.getElementById('resultado-quiz');
+  if (aprobado) {
+    resultadoDiv.innerHTML = `
+      <div class="tip" style="border-color: var(--verde-ok); background: var(--verde-suave);">
+        <div class="tip-titulo" style="color: var(--verde-ok);">¡Aprobado! ${correctos}/${total}</div>
+        <p style="color: #14532d;">Excelente desempeño. Está listo para reclamar su certificado de aprobación.</p>
+        <button class="btn btn-primario" onclick="abrirCertificado(${correctos})" style="margin-top: 1rem;">Reclamar certificado</button>
+      </div>
+    `;
+  } else {
+    resultadoDiv.innerHTML = `
+      <div class="alerta">
+        <div class="alerta-titulo">Puntaje: ${correctos}/${total} — Se requiere 8/10</div>
+        <p>Revise las preguntas marcadas en rojo y vuelva a las pestañas de teoría correspondientes. Puede reiniciar la evaluación cuando lo desee.</p>
+      </div>
+    `;
+  }
+  resultadoDiv.style.display = 'block';
+  document.getElementById('btn-evaluar').style.display = 'none';
+  resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function reiniciarQuiz() {
+  document.getElementById('resultado-quiz').style.display = 'none';
+  document.getElementById('btn-evaluar').style.display = 'none';
+  generarQuiz();
+  actualizarProgresoQuiz();
+}
+
+function abrirCertificado(puntaje) {
+  document.getElementById('cert-overlay').classList.add('activo');
+  document.getElementById('cert-form-bloque').style.display = 'block';
+  document.getElementById('cert-final-bloque').style.display = 'none';
+  document.getElementById('cert-overlay').dataset.puntaje = puntaje;
+}
+
+function cerrarCertificado() {
+  document.getElementById('cert-overlay').classList.remove('activo');
+}
+
+function generarCertificado() {
+  const nombre = document.getElementById('nombre-est').value.trim();
+  if (!nombre) {
+    alert('Por favor escriba su nombre completo');
+    return;
+  }
+  const puntaje = document.getElementById('cert-overlay').dataset.puntaje;
+  document.getElementById('cert-nombre-display').textContent = nombre;
+  document.getElementById('cert-puntaje-display').textContent = `${puntaje} / 10`;
+  document.getElementById('cert-form-bloque').style.display = 'none';
+  document.getElementById('cert-final-bloque').style.display = 'block';
+}
+
+// Inicializar quiz
+document.addEventListener('DOMContentLoaded', () => {
+  generarQuiz();
+});
+</script>
+
+</body>
+</html>
